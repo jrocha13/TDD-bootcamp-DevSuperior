@@ -75,4 +75,3 @@ public class Event {
 		this.city = city;
 	}
 }
-
