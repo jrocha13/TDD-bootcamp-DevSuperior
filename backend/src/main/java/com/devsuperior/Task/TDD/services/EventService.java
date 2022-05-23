@@ -1,5 +1,7 @@
 package com.devsuperior.Task.TDD.services;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +12,7 @@ import com.devsuperior.Task.TDD.dto.EventDTO;
 import com.devsuperior.Task.TDD.entities.City;
 import com.devsuperior.Task.TDD.entities.Event;
 import com.devsuperior.Task.TDD.repositories.EventRepository;
+import com.devsuperior.Task.TDD.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class EventService {
@@ -24,13 +27,18 @@ public class EventService {
 	}
 
 	@Transactional
-	public EventDTO insert(EventDTO dto) {
-		Event entity = new Event();
-		entity.setName(dto.getName());
-		entity.setDate(dto.getDate());
-		entity.setUrl(dto.getUrl());
-		entity.setCity(new City(dto.getCityId(), null));
-		entity = repository.save(entity);
-		return new EventDTO(entity);
+	public EventDTO update(Long id, EventDTO dto) {
+		try {
+			Event entity = repository.getOne(id);
+			entity.setName(dto.getName());
+			entity.setDate(dto.getDate());
+			entity.setUrl(dto.getUrl());
+			entity.setCity(new City(dto.getCityId(), null));
+			entity = repository.save(entity);
+			return new EventDTO(entity);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Id not found" + id);
+		}
 	}
+
 }
